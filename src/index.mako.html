@@ -1,0 +1,468 @@
+# -*- coding: utf-8 -*-
+<!DOCTYPE html>
+<html ng-app="ga" ng-controller="GaMainController">
+  <head>
+    <title translate="{{topicId + '_page_title'}}">map.geo.admin.ch</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <link rel="dns-prefetch" href="${service_url}" />
+
+    <link rel="apple-touch-icon" sizes="76x76" href="${version}img/touch-icon-bund-76x76.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="${version}img/touch-icon-bund-120x120.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="${version}img/touch-icon-bund-152x152.png" />
+
+    <meta name="description" content="Maps of Switzerland : The official geoportal of the Swiss Confederation provides digital data which can be viewed, printed out, ordered and supplied by means of the map viewer tool. Geoinformation is made available by public-sector organisations and is accessible to the general public."/>
+    <meta name="keywords" content="maps Switzerland, map viewer, Confederation, geodata, public platform, geographical information, geoportal, orthophotos, geolocation, geoinformation, Geodaten, Geoinformation, Bund, Plattform, Karte, Kartendienst, Kartenviewer"/>
+
+    <script>
+      (function(){
+        var w = window, l = w.location, pathname, p = '${device}',
+          m = l.search.match(/(?:mobile=(true|false))/);
+
+        if (!l.origin) { l.origin = l.protocol + "//" + l.hostname } // IE fix
+
+        // avoid loops
+        m = (m) ? m[1] : m;
+        if ((p=='desktop' && m=='false') || (p=='mobile' && m=='true')) {
+          return;
+        }
+
+        var redirectToMobile = function() {
+          pathname = (l.pathname.indexOf('index')==-1) ?
+            l.pathname + 'mobile.html' : l.pathname.replace(/index/, 'mobile');
+          l.href = l.origin + pathname + l.search;
+        }
+        var redirectToDesktop = function() {
+          l.href = l.origin + l.pathname.replace(/mobile/, 'index') + l.search;
+        }
+
+        var onMobile = ( (('ontouchstart' in w) || ('onmsgesturechange' in w)) && (screen.width<=768) );
+        if (m=='false' || (!onMobile && p=='mobile') ) {
+          redirectToDesktop();
+        } else if (m=='true' || (onMobile && p=='desktop') ) {
+          redirectToMobile();
+        }
+      })();
+    </script>
+
+    <link href="${version}style/app.css" rel="stylesheet" media="screen">
+    <link rel="shortcut icon" type="image/x-icon" href="${version}img/favicon.ico"/>
+  </head>
+
+  <body ng-class="[topicId, globals.searchFocused ? 'search-focused' : '']">
+    <div id="header" class="navbar navbar-fixed-top">
+      <a ng-href="?topic={{topicId}}&lang={{langId}}" id="logo" class="pull-left">
+        <img src="${version}img/logo.ch.jpeg" style="width: 270px; height: 89px"/>
+        <img src="${version}img/logo.ch.small.png" style="width: 19px; height: 19.5px"/>
+      </a>
+      <div id="search-container" ng-controller="GaSearchController">
+        <div ga-search ga-search-map="map" ga-search-options="options" ga-search-focused="globals.searchFocused"></div>
+      </div>
+% if device == 'desktop':
+      <form class="navbar-form pull-right hidden-xs">
+        <div ga-background-layer-selector
+          ga-background-layer-selector-map="map"></div>
+        <div id="toptools">
+          <a href="#feedback" data-toggle="modal" translate>problem_announcement</a>&nbsp;&nbsp;
+          <a target="_blank" ng-href="{{topicId + '_help_link_href' | translate}}" translate>help_label</a>&nbsp;&nbsp;
+          <a ng-href="{{deviceSwitcherHref}}" translate>mobile_redirect</a>&nbsp;&nbsp;
+          <div ng-controller="GaTranslationController">
+            <div ga-translation-selector
+              ga-translation-selector-options="options"></div>
+          </div>
+        </div>
+      </form>
+% endif
+    </div> <!-- #header -->
+
+    <div id="map" class="map" ga-map ga-map-map="map">
+      <div ga-geolocation ga-geolocation-map="map"></div>
+      <div id="copyrightsdata">
+        <div>
+          <span >&copy;&nbsp;</span>
+          <span translate>data</span>
+        </div>
+        <div ga-attribution ga-attribution-map="map"></div>
+      </div>
+    </div> <!-- #map -->
+
+
+    <div id="footer" class="navbar navbar-fixed-bottom">
+      <div id="scaleline" class="pull-left" ga-scale-line ga-scale-line-map="map"></div>
+% if device == 'desktop':
+      <div id="mouseposition" class="pull-left visible-lg" ng-controller="GaMousePositionController">
+        <select
+          ng-model="options.projection"
+          ng-options="p.label for p in mousePositionProjections">
+        </select>
+        <div class="ga-mouse-position"
+          ga-mouse-position
+          ga-mouse-position-map="map"
+          ga-mouse-position-options="options"></div>
+      </div>
+% endif
+      <div id="copyrights" class="pull-right">
+        <a target="_blank" ng-href="http://www.geo.admin.ch/internet/geoportal/{{langId}}/home/geoadmin/contact.html#copyright" translate>copyright_label</a>
+      </div>
+% if device == 'desktop':
+      <div id="geoadminlink" class="pull-right">
+        <a target="_blank" ng-href="{{topicId + '_service_link_href' | translate}}" ng-cloak translate="{{topicId + '_service_link_label'}}"></a>
+      </div>
+% endif
+    </div><!-- #footer -->
+
+    <div  ng-controller="GaContextPopupController" class="ga-context-popup">
+      <div ga-context-popup ga-context-popup-map="map" ga-context-popup-options="options"></div>
+    </div>
+
+    <div ng-controller="GaTooltipController">
+      <div ga-tooltip ga-tooltip-map="map" ga-tooltip-options="options"></div>
+    </div>
+
+    <div id="pulldown">
+      <div id="pulldown-content" class="panel-group content ${"in" if device == "desktop" else "collapse"}">
+        <div class="panel">
+          <a class="panel-heading accordion-toggle collapsed" data-toggle="collapse" data-parent="#pulldown-content" href="#share">
+            <i class="visible-collapsed icon-caret-right spacer"></i>
+            <i class="hidden-collapsed icon-caret-down"></i>
+            <i class="icon-share"></i>
+            <span translate>share</span>
+          </a>
+          <div id="share" class="panel-collapse collapse">
+            <div class="panel-body" ng-controller="GaShareController">
+              <div ga-share ga-share-options="options"></div>
+            </div>
+          </div>
+        </div> <!-- .panel -->
+
+% if device == 'desktop':
+        <div class="panel">
+          <a class="panel-heading accordion-toggle collapsed" data-toggle="collapse" data-parent="#pulldown-content" href="#print">
+            <i class="visible-collapsed icon-caret-right spacer"></i>
+            <i class="hidden-collapsed icon-caret-down"></i>
+            <i class="icon-print"></i>
+            <span translate>print</span>
+          </a>
+          <div id="print" class="panel-collapse collapse">
+            <div class="panel-body">
+              <%include file="components/print/partials/form.mako.html"/>
+            </div>
+          </div>
+        </div>  <!-- .panel -->
+% endif
+
+% if device == 'desktop':
+        <div class="panel">
+          <a class="panel-heading accordion-toggle collapsed" data-toggle="collapse" data-parent="#pulldown-content" href="#tools">
+            <i class="visible-collapsed icon-caret-right spacer"></i>
+            <i class="hidden-collapsed icon-caret-down"></i>
+            <i class="icon-location-arrow"></i>
+            <span translate>map_tools</span>
+          </a>
+          <div id="tools" class="collapse">
+            <div class="panel-body panel-body-wide">
+
+              <ul>
+
+                <li><!-- Import -->
+                  <a class="accordion-toggle collapsed" data-toggle="collapse" href="#import">
+                    <i class="visible-collapsed icon-plus"></i>
+                    <i class="hidden-collapsed icon-minus"></i>
+                    <span translate>import</span>
+                  </a>
+                  <div id="import" class="collapse">
+                    <div class="panel-body">
+                      <ul>
+                        <!-- We can't use translate directive for these links, see:
+                        https://github.com/PascalPrecht/angular-translate/issues/129 -->
+                        <li>
+                          <a href="" ng-click="importWmsPopupShown = !importWmsPopupShown">
+                            <i class="icon-external-link ga-icon-separator"></i>
+                            <span translate>wms</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a href=""  ng-click="importKmlPopupShown = !importKmlPopupShown">
+                            <i class="icon-file ga-icon-separator"></i>
+                            <span translate>kml</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div> <!-- .panel -->
+% endif
+
+        <div class="panel">
+% if device == 'desktop':
+          <div class="theme-toggle visible-lg visible-md">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+              <span translate>choose_theme</span>
+              <i class="icon-chevron-sign-right"></i>
+            </a>
+            <div class="dropdown-menu" ng-controller="GaTopicController">
+              <div ga-topic ga-topic-ui="list" ga-topic-options="options" ga-topic-map="map"></div>
+            </div>
+          </div>
+% endif
+          <a class="panel-heading accordion-toggle light collapsed" data-toggle="collapse" href="#catalog">
+            <i class="visible-collapsed icon-caret-right"></i>
+            <i class="hidden-collapsed icon-caret-down"></i>
+            <span translate={{topicId}}></span>
+          </a>
+          <div id="catalog" class="collapse" ng-controller="GaCatalogtreeController">
+% if device == 'mobile':
+            <label class="topic-container" ng-controller="GaTopicController">
+              <span translate>change_topic</span>
+              <div ga-topic ga-topic-ui="select" ga-topic-options="options" ga-topic-map="map"></div>
+            </label>
+% endif
+            <div class="panel-body panel-body-wide accordion-inner-catalog"
+              ga-catalogtree ga-catalogtree-map="map" ga-catalogtree-options="options">
+            </div>
+          </div>
+        </div> <!-- .panel -->
+
+        <div class="panel">
+          <a class="panel-heading accordion-toggle light collapsed" data-toggle="collapse" href="#selection">
+            <i class="visible-collapsed icon-caret-right"></i>
+            <i class="hidden-collapsed icon-caret-down"></i>
+            <span translate>layer_selection</span>
+          </a>
+          <div id="selection" class="collapse">
+            <div class="panel-body panel-body-wide" ga-layermanager ga-layermanager-map="map">
+            </div>
+          </div>
+        </div> <!-- .panel -->
+
+% if device == 'mobile':
+        <div class="panel">
+          <a class="panel-heading accordion-toggle collapsed" data-toggle="collapse" data-parent="#pulldown-content" href="#settings">
+            <i class="visible-collapsed icon-caret-right spacer"></i>
+            <i class="hidden-collapsed icon-caret-down"></i>
+            <i class="icon-gear"></i>
+            <span translate>settings</span>
+          </a>
+          <div id="settings" class="collapse">
+            <div class="panel-body">
+              <p>
+                <a ng-href="{{deviceSwitcherHref}}">desktop_redirect</a>
+              </p>
+              <div class="options">
+                <label ng-controller="GaTranslationController">
+                  <span translate>lang_chooser_label</span>
+                  <div id="lang-chooser" ga-translation-selector ga-translation-selector-options="options"></div>
+                </label>
+                <label>
+                  <span translate>bg_chooser_label</span>
+                  <div id="bg-chooser" ga-background-layer-selector ga-background-layer-selector-map="map"></div>
+                </label>
+              </div>
+              <hr>
+              <p>
+                <a href="#feedback" data-toggle="modal" translate>problem_announcement</a>
+                <br>
+                <a target="_blank" ng-href="{{topicId + '_service_link_href' | translate}}" ng-cloak translate="{{topicId + '_service_link_label'}}"></a>
+                <br>
+                <a target="_blank" ng-href="http://www.geo.admin.ch/internet/geoportal/{{langId}}/home/geoadmin/contact.html#copyright" translate>copyright_label</a>
+              </p>
+            </div>
+          </div>
+        </div> <!-- .panel -->
+% endif
+      </div> <!-- #pulldown-content -->
+
+% if device == 'desktop':
+      <button type="button" data-toggle="collapse" data-target="#pulldown-content" class="toggle btn btn-default">
+% else:
+      <button type="button" data-toggle="collapse" data-target="#pulldown-content" class="toggle btn btn-default collapsed">
+% endif
+        <span class="hidden-collapsed">
+          <i class="icon-caret-up"></i> <span translate>close_menu</span>
+          <span class="phone-toggle">&times;</span>
+        </span>
+        <span class="visible-collapsed">
+          <i class="icon-reorder"></i>
+          <i class="icon-caret-down"></i>
+          <span translate>open_menu</span>
+        </span>
+      </button>
+    </div> <!-- #pulldown -->
+
+    <!-- feedback dialog -->
+    <div ng-controller="GaFeedbackController" class="modal-container">
+      <div id="feedback" class="modal fade" tabindex="-1" role="dialog" ga-modal-show="feedbackModalShown">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title" translate>problem_announcement</h4>
+            </div>
+            <div ga-feedback
+              ga-feedback-options="options"
+              ga-feedback-response="response"></div>
+          </div>
+        </div>
+      </div>
+      <div id="feedback-success" class="modal fade" tabindex="-1" role="dialog" ga-modal-show="feedbackSuccessModalShown">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title" translate>success</h4>
+            </div>
+            <div class="modal-body" translate>
+              feedback_success_message
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal" translate>close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="feedback-error" class="modal fade" tabindex="-1" role="dialog" ga-modal-show="feedbackErrorModalShown">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title" translate>error</h4>
+            </div>
+            <div class="modal-body" translate>
+              feedback_error_message
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal" translate>close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup: Import WMS -->
+    <div ga-popup="importWmsPopupShown"
+      ga-popup-options="{title:'import_wms'}"
+      ga-draggable=".ga-popup-title"
+      id="import-wms-popup" >
+      <div ng-controller="GaImportWmsController">
+        <div ga-import-wms
+          ga-import-wms-map="map"
+          ga-import-wms-options="options"
+          id="import-wms"
+          class="import-wms">
+        </div>
+      </div>
+    </div> <!-- end Import WMS -->
+
+    <!-- Popup: Import KML -->
+    <div ga-popup="importKmlPopupShown"
+      ga-popup-options="{title:'import_kml'}"
+      ga-draggable=".ga-popup-title"
+      id="import-kml-popup" >
+      <div ng-controller="GaImportKmlController">
+        <div ga-import-kml
+          ga-import-kml-map="map"
+          ga-import-kml-options="options"
+          id="import-kml"
+          class="import-kml">
+        </div>
+      </div>
+    </div><!-- end Import KML -->
+
+    <div class="popover homescreen" ng-if="globals.homescreen" ng-class="[ globals.homescreen ? 'visible' : '', globals.tablet ? 'bottom' : 'top']">
+      <div class="arrow"></div>
+      <h3 class="popover-title">
+        <span translate>homescreen_title</span>
+        <button type="button" class="close" ng-click="globals.homescreen=false">&times;</button>
+      </h3>
+      <div class="popover-content">
+        <p>
+          <i class=icon-share></i>&nbsp;
+          <span translate>homescreen_content</span>
+        </p>
+      </div>
+    </div>
+
+    ## css animation doesnt work on pseudo element, let use this instead
+    <i id="loader" class="icon-spin icon-refresh"></i>
+
+% if mode == "prod":
+    <script src="${version}lib/build.js"></script>
+% else:
+    <script src="lib/jquery-2.0.3.js"></script>
+    <script src="lib/angular-1.2.0rc2.js"></script>
+    <script src="lib/angular-translate-1.1.0.js"></script>
+    <script src="lib/angular-translate-loader-static-files-0.1.5.js"></script>
+    <script src="lib/angular-animate-1.2.0rc2.js"></script>
+    <script src="lib/bootstrap-3.0.0.js"></script>
+    <script src="lib/typeahead-0.9.3.js"></script>
+    <script src="lib/proj4js-compressed.js"></script>
+    <script src="lib/EPSG21781.js"></script>
+    <script src="lib/EPSG2056.js"></script>
+    <script src="lib/fastclick.js"></script>
+
+    <!-- Use Closure to load the application scripts -->
+    <script>
+      window.CLOSURE_NO_DEPS = true;
+    </script>
+
+    <!-- ol-whitespace.js includes Closure's base.js code, so we don't
+         need to load base.js ourselves. We keep Closure's base.js file
+         around in case we need to test with ol.js or ol-simple.js. -->
+    <script src="lib/ol-whitespace.js"></script>
+    <!--<script src="lib/closure/base.js"></script>-->
+    <script src="deps.js"></script>
+    <script>
+      goog.require('ga');
+    </script>
+
+%endif
+% if device == 'mobile':
+    <script>
+      window.addEventListener('load', function() {
+        FastClick.attach(document.body);
+      }, false);
+    </script>
+% endif
+
+    <script>
+      (function() {
+        var module = angular.module('ga');
+
+        module.constant('gaGlobalOptions', {
+          serviceUrl : '${service_url}',
+          baseUrlPath: '${base_url_path}',
+          version: '${version}'
+        });
+
+        module.config(['gaLayersProvider', function(gaLayersProvider) {
+          gaLayersProvider.wmtsGetTileUrlTemplate =
+              'http://wmts{0-4}.geo.admin.ch/1.0.0/{Layer}/default/{Time}/21781/{TileMatrix}/{TileRow}/{TileCol}.{Format}';
+
+          gaLayersProvider.layersConfigUrlTemplate =
+              '${base_url_path}/${version}rest/services/{Topic}/MapServer/layersconfig?lang={Lang}';
+
+          gaLayersProvider.legendUrlTemplate =
+              '${base_url_path}/${version}rest/services/{Topic}/MapServer/{Layer}/getlegend?lang={Lang}';
+        }]);
+      })();
+
+## Workaround for iOS 6.x bug: content shifted after orientation change
+## As we can’t use css fix ( see http://stackoverflow.com/a/12518946/29655 )
+## we force a redraw on orientation change
+## ( see http://stackoverflow.com/a/13235711/29655 )
+      (function(){
+        $(window).bind("orientationchange", function(){
+          $('#header').hide();
+          setTimeout(function(){ $('#header').show(); }, 0);
+        });
+      })();
+    </script>
+  </body>
+</html>

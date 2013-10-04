@@ -1,0 +1,51 @@
+.ga-catalogitem-node {
+  a {
+    color: black;
+    display: block;
+    text-decoration: none;
+    &:hover, &:focus {
+      color: #666;
+    }
+  }
+  ul {
+    padding-left: 1.6em;
+    ul ul {
+      padding-left: 2em;
+    }
+  }
+  ul.closed {
+    display: none;
+  }
+
+  .icon-collapse-alt, .icon-expand-alt {
+    float: left;
+    padding-top: 2px;
+    padding-right: 3px;
+  }
+}
+
+.ga-catalogitem-leaf {
+  position: relative;
+  i {
+    position: absolute;
+    right: 0;
+    top: .8em;
+    @media (max-width: @screen-tablet) {
+      font-size: 26px;
+      top: 2px;
+    }
+  }
+  .icon-warning-sign {
+    right: 1em;
+  }
+  .icon-info-sign {
+    cursor: pointer;
+  }
+}
+
+.ga-catalogitem-entry {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-left: 0px;
+}
+

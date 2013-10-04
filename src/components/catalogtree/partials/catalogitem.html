@@ -1,0 +1,27 @@
+<div class="ga-catalogitem-template" ng-switch="item.children">
+
+  <div ng-switch-when="undefined" class="ga-catalogitem-leaf ga-catalogitem-entry"
+    ng-class="{'preview': inPreviewMode() , 'selected': item.selectedOpen}"
+    ng-mouseover="addPreviewLayer()"
+    ng-mouseleave="removePreviewLayer()">
+    <label>
+      <input type="checkbox" ng-model="item.selectedOpen" ng-change="toggleLayer()">
+      {{item.label}}
+    </label>
+    <i class="icon-warning-sign" ng-show="item.errorLoading"></i>
+    <i class="icon-info-sign" ng-click="getLegend($event, item.idBod)"></i>
+  </div>
+
+  <div ng-switch-default="" class="ga-catalogitem-node">
+    <a href="#" ng-click="toggle($event)" class="ga-catalogitem-entry">
+      <i ng-class="{'icon-minus': item.selectedOpen, 'icon-plus': !item.selectedOpen}"></i>
+      {{item.label}}
+    </a>
+    <ul ng-if="item.selectedOpen">
+      <li ng-repeat="child in item.children">
+        <div ga-catalogitem ga-catalogitem-item="child" ga-catalogitem-map="map"></div>
+      </li>
+    </ul>
+  </div>
+
+</div>

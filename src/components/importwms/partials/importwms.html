@@ -1,0 +1,56 @@
+<div>
+  <form>
+    <input type="url" name="url" autocomplete="off" placeholder="{{'choose_wms_url' | translate}}"
+      ng-model="fileUrl" required class="form-control"/>
+    <div class="open-wms-list icon-collapse"></div>
+    <button type="button" class="btn btn-default bt-connect"
+            ng-click="handleFileUrl()" translate>connect</button>
+    <div>{{wmsConstraintsMessage ? wmsConstraintsMessage : userMessage}}</div>
+  </form>
+  <div class="tables-container">
+    <table class="table-header table table-condensed">
+      <thead>
+        <tr>
+          <th class="add col-first"></th>
+          <th class="title" ng-click="reverse = !reverse">
+            <span class="pull-left" translate>title</span>
+            <i class="pull-right icon-sort-by-alphabet" ng-hide="reverse"></i>
+            <i class="pull-right icon-sort-by-alphabet-alt" ng-show="reverse"></i>
+          </th>
+        </tr>
+      </thead>
+    </table>
+    <div class="table-content-container">
+      <table class="table-content table table-striped table-hover table-condensed">
+        <tbody>
+          <tr ng-repeat="layer in layers | orderBy:'title':reverse"
+            class="
+            {{($first) ? 'row-first ' : ''}}
+            {{(layerSelected.name == layer.name) ? 'success ' : ''}}
+            {{(layerHovered.name == layer.name) ? 'pending ' : ''}}">
+            <td class="add col-first">
+              <div class="icon-zoom-in" ng-click="zoomOnLayerExtent(layer)"></div>
+            </td>
+            <td class="title"
+              ng-mouseover="addLayerHovered(layer)"
+              ng-mouseleave="removeLayerHovered()"
+              ng-click="toggleLayerSelected(layer)" >
+              {{layer.title}}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-backdrop fade in" ng-show="progress > 0 && progress < 100">
+      <div class="progress progress-striped active">
+        <div class="progress-bar" style="width: 100%;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="description-container">
+    <label translate>description</label>
+    <textarea  placeholder="{{'description_instructions' | translate}}" class="form-control" readonly>
+{{(layerSelected) ? layerSelected.abstract : layerHovered.abstract}}</textarea>
+    <button type="button" class="btn btn-default bt-addlayer" ng-click="addLayerSelected()" translate>add_layer</button>
+  </div>
+</div>

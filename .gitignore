@@ -1,0 +1,28 @@
+/node_modules
+/src/deps.js
+/src/style/app.css
+/src/index.html
+/src/mobile.html
+/src/TemplateCacheModule.js
+/prod
+/.build-artefacts
+/apache/app.conf
+/test/karma-conf-dev.js
+/test/karma-conf-prod.js
+/deploy/deploy-branch.cfg
+
+# FIXME
+# The following are developer-specific and should probably be in the
+# developers' .gitconfig file.
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Jetbrains
+.idea
+*.iml
+
+# Vim swap files
+*.swp

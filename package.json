@@ -1,0 +1,17 @@
+{
+  "name": "geoadmin3",
+  "version": "3.0.0",
+  "description": "GeoAdmin 3 Application",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/geoadmin/mf-geoadmin3"
+  },
+  "author": "Swisstopo",
+  "readmeFileName": "README.md",
+  "devDependencies": {
+    "less": "1.4.0",
+    "karma": "0.8.5",
+    "ng-annotate": "0.2.0"
+  }
+}
+
